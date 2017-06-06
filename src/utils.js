@@ -1,6 +1,6 @@
 /*.
 <script type="text/javascript" src="//maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>*/
-export function loadJS(){
+export function loadJS(key) {
   key = key ? '&key='+ key : '';
   if(window.loadPromise) {
     return window.loadPromise;
