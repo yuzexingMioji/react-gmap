@@ -1,16 +1,12 @@
-
-export function loadJS(key){
-  if(key) {
-    key = '&key='+key;
-  }else {
-    key = '';
-  }
+/*.
+<script type="text/javascript" src="//maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>*/
+export function loadJS(){
+  key = key ? '&key='+ key : '';
   if(window.loadPromise) {
     return window.loadPromise;
   } else {
     const loadPromise = new Promise((resolve, reject) => {
       let s = document.createElement('script');
-      s.src = 'http://ditu.google.cn/maps/api/js?libraries=places'+key;
       s.onload = resolve;
       s.onerror = reject;
       let x = document.getElementsByTagName('script')[0];

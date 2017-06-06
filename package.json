@@ -1,15 +1,11 @@
 {
   "name": "react-gmap-mj",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "description": "react google map",
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fanlz/react-gmap.git"
   },
   "keywords": [
     "react",
