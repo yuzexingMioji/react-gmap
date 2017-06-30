@@ -120,32 +120,68 @@ class App extends Component {
     };
   }
 
-  onSelect(type, id) {
+  onSelect(type, selectData) {
     const { select, data } = this.state;
     if(type == 0) {
       // sub
-      const sb = select.findIndex((m) => m.id == id);
+      const sb = select.findIndex((m) => m.id == selectData.id);
       select.splice(sb, 1);
     }else {
       // add
-      const sb = this.data.find((m) => m.id == id);
-      select.push(sb);
+      // const sb = this.data.find((m) => m.id == id);
+      select.push(selectData);
     }
-    let i = 0;
-    this.data2.sort(() => {
-      i++;
-      return i%2;
-    });
+    // let i = 0;
+    // this.data2.sort(() => {
+    //   i++;
+    //   return i%2;
+    // });
     this.setState({
       select,
       data,
       order: true
     });
   }
+  addNewMarker() {
+    const { select, data } = this.state;
+    data.push({
+        id: 12312301,
+        position: {
+          lat: 39.92, lng: 119.46
+        },
+        type: 1024,
+        first: '蒋介石故居1231231231',
+        second: 'laojia蒋介石故居1231231231',
+        third: '320个国家',
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+      },);
+    this.setState({
+      // select,
+      data,
+      order: false
+    });
+  }
 
-  onClick(type, id) {
+  removeNewMarker() {
+    const { select, data } = this.state;
+    this.setState({data: [], select:[]});
+    setTimeout(() => {
+      data.splice(0,1);
+      this.setState({
+        select,
+        data,
+        order: true
+      });
+      this.map.initMapLens();
+    }, 1000);
+    return;
+    
+    
+  }
+
+  onClick(type, data) {
     console.log(type);
-    console.log(id);
+    console.log(data);
   }
 
   render() {
@@ -153,17 +189,17 @@ class App extends Component {
     return (
       
       <div style={{width: '800px', height: '800px'}} >
-      <div onMouseOver={()=>this.map.startBounce(123111)} onMouseOut={()=>this.map.stopBounce(123111)}>
-        列表
+      <div onClick={this.addNewMarker.bind(this)} onMouseOver={()=>this.map.startBounce(123111)} onMouseOut={()=>this.map.stopBounce(123111)}>
+        列表 +
       </div>
-      <div onMouseOver={()=>this.map.startBounce(12312315)} onMouseOut={()=>this.map.stopBounce(12312315)}>
-        列表
+      <div onClick={this.removeNewMarker.bind(this)} onMouseOver={()=>this.map.startBounce(12312315)} onMouseOut={()=>this.map.stopBounce(12312315)}>
+        列表 -
       </div>
         <InfoMap
           whole={_.cloneDeep(data)}
           selected={_.cloneDeep(select)}
           options={null}
-          infinite={false}
+          infinite={true}
           order={order}
           ref={(ref) => this.map = ref}
           onClick={this.onClick.bind(this)}

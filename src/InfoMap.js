@@ -46,7 +46,7 @@ class InfoMap extends Component{
     this.initIcon = this.initIcon.bind(this);
     this.reLoadJS = this.reLoadJS.bind(this);
     this.initLine = this.initLine.bind(this);
-    this.updateMap = this.updateMap.bind(this);
+    // this.updateMap = this.updateMap.bind(this);
     this.startBounce = this.startBounce.bind(this);
     this.initMarker = this.initMarker.bind(this);
     this.optionClick = this.optionClick.bind(this);
@@ -120,46 +120,75 @@ class InfoMap extends Component{
     // 过滤重复已选城市/地图内部不考虑重复点
 
     // 有序 展示连线 无序移除连线
-    const { whole, selected } = this.props;
+    const { whole =[], selected = [], order } = this.props;
 
-    const nWhole = nextProps.whole;
+    const nWhole = nextProps.whole || [];
     const nOrder = nextProps.order;
-    const nSelected = nextProps.selected;
+    const nSelected = nextProps.selected || [];
 
-
-    if(isEqual(whole, nWhole)) {
-      // 整体不变 无须刷新地图
-      if(isEqual(selected, nSelected)) {
-        return;
+    if(isEqual(nWhole, whole) && isEqual(nSelected, nWhole)) {
+      if(order != nOrder && !!this.lineOnMap) {
+        this.lineOnMap.setMap(nOrder ? this.map : null);
       }
-      this.markers.map((m) => {
-
-        const select = nSelected.find((s) => s.id == m.id);
-        if(select && !m.selected) {
-          // 改变状态
-          this.initSelectState(m.marker, true);
-          m.selected = true;
-        }
-        // 从已选列表中移除的 也需要重置
-        if(!select && m.selected) {
-          this.initSelectState(m.marker, false, m.id);
-          m.selected = false;
-        }
-      });
-
-      const path = [];
-      nSelected.map((s) => {
-        path.push(s.position);
-      });
-
-      this.lineOnMap.setPath(path);
-      this.lineOnMap.setMap(nOrder ? this.map : null);
-    }else {
-      // 强制刷新, 重置地图视角
-      setTimeout(() => {
-        this.updateMap();
-      });
+      return;
     }
+
+    const newMarkers = merge([nWhole, nSelected]);
+    const nextMarkers = [];
+    this.markers.map((oldMarker) => {
+      const stay = newMarkers.find((newMarker) => newMarker.id == oldMarker.id);
+      if(stay) {
+        // 被保留的marker 可能是状态发生变化
+        const select = nSelected.find((s) => s.id == stay.id);
+        if(select && !oldMarker.selected) {
+          // 改变状态
+          this.initSelectState(oldMarker.marker, true);
+          oldMarker.selected = true;
+        }else if(!select && oldMarker.selected) {
+        // 从已选列表中移除的 也需要重置
+          this.initSelectState(oldMarker.marker, false, oldMarker.id);
+          oldMarker.selected = false;
+        }
+        nextMarkers.push(oldMarker);
+      }else {
+        // marker被移除了
+        oldMarker.marker.setMap(null);
+        oldMarker.label.close();
+        if(oldMarker.id == this.markerID) {
+          this.infoBubble.close();
+        }
+      }
+    });
+    const middeleArray = [];
+    newMarkers.map((newMarker) => {
+      const marker = nextMarkers.find((nextMarker) => nextMarker.id == newMarker.id);
+      // 新添加的marker, 添加到地图上
+      if(!marker) {
+
+        const select = nSelected.findIndex((s) => s.id == newMarker.id);
+        newMarker.selected = select >= 0;
+
+        const { marker, label } = this.addMarkerWithInfoBubble(newMarker);
+
+        newMarker.marker = marker;
+        newMarker.label = label;
+
+        middeleArray.push(newMarker);
+      }
+    });
+
+    this.markers = nextMarkers.concat(middeleArray);
+
+    const seen = new Map()
+    const uniqueArr = nSelected.filter((a) => !seen.has(a.id) && seen.set(a.id, 1))
+
+    const path = [];
+    uniqueArr.map((s) => {
+      path.push(s.position);
+    });
+
+    this.lineOnMap.setPath(path);
+    this.lineOnMap.setMap(nOrder ? this.map : null);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -176,10 +205,6 @@ class InfoMap extends Component{
     
     this.initMap();
     this.initIcon();
-    this.updateMap();
-  }
-
-  updateMap() {
     this.initLine();
     this.initMarker();
     this.initMapLens();
@@ -203,10 +228,11 @@ class InfoMap extends Component{
   initIcon() {
     this.SB_Icon = {
       url: IMG_SMALL_BLUE,
-      size: new google.maps.Size(12, 22),
+      // size: new google.maps.Size(12, 22),
+      size: new google.maps.Size(17, 29),
       origin: new google.maps.Point(0, 0),
-      anchor: new google.maps.Point(6, 22),
-      scaledSize: new google.maps.Size(12, 22),
+      anchor: new google.maps.Point(8, 29),
+      scaledSize: new google.maps.Size(17, 29),
     };
 
     this.BB_Icon = {
@@ -286,28 +312,33 @@ class InfoMap extends Component{
   }
 
   // 重置地图镜头
-  initMapLens(allCoords) {
-    if(!allCoords) {
+  initMapLens(allCoords, reset) {
+    if(!allCoords || allCoords.length == 0) {
       const { whole } = this.props;
       allCoords = whole.map((marker) => marker.position);
     }
-    utils.fitMap(this.map, { coords: allCoords }, this.getProjection);
+    if(allCoords && allCoords.length > 0) {
+      utils.fitMap(this.map, { coords: allCoords }, this.getProjection);
+    }else if(!reset) {
+      setTimeout(() => this.initMapLens([], true), 50);
+    }
   }
 
   optionClick(data) {
-    const { infinite, onSelect } = this.props;
-    const { selected, id, marker } = data;
+    const { infinite, onSelect, whole, selected } = this.props;
+    const { id, marker } = data;
+    const selectData = whole.concat(selected).find((m) => m.id == id);
     if(!infinite && !!this.infoBubble && this.infoBubble.isOpen()) {
-      if(!selected) {
+      if(!data.selected) {
         // 选中
-        onSelect && onSelect(1, id);
+        onSelect && onSelect(1, selectData);
       }else {
         // 取消
-        onSelect && onSelect(0, id);
+        onSelect && onSelect(0, selectData);
       }
     }else if(infinite) {
       // 可选重复
-      onSelect && onSelect(1, id);
+      onSelect && onSelect(1, selectData);
     }
   }
 
@@ -332,7 +363,7 @@ class InfoMap extends Component{
       +"<span class='second-title over-hide "+ style.extraCooler +"'>"+second+"</span>"
       +"<span class='third-title over-hide "+ style.extraCoolest +"'>"+third+"</span>"  
     +"</div>"
-    +"<div class='btn-wrap' id='btn-option'>"
+    +"<div class='btn-wrap "+ style.icon +"' id='btn-option'>"
       + icon
     +"</div>";
     content.className = 'gmap-info-bubble-info-wrap';
@@ -361,6 +392,7 @@ class InfoMap extends Component{
       extraCool: '',
       extraCooler: '',
       extraCoolest: '',
+      icon: '',
     }
     switch(type) {
       case 1:
@@ -378,8 +410,10 @@ class InfoMap extends Component{
         style.extraCoolest = 'shop'
         break;
       case 512:
+        style.icon = 'noIcon';
         break;
       case 1024:
+        style.icon = 'noIcon';
         break;
       // 玩乐
       case 16384:
@@ -401,7 +435,7 @@ class InfoMap extends Component{
   }
 
   addMarkerWithInfoBubble(data) {
-    const { position, type, id, selected } = data
+    const { position, type, id, selected } = data;
 
     if(!position) {
       console.log('无地理位置 error');
@@ -513,9 +547,10 @@ class InfoMap extends Component{
 
     if(type == 512 || type == 1024) {
       marker.addListener('click', () => {
-        const { onClick } = this.props;
+        const { onClick, whole, selected } = this.props;
         // 点击进入新列表页 其他无点击事件
-        onClick && onClick(type, id);
+        const selectData = whole.concat(selected).find((m) => m.id == id);
+        onClick && onClick(type, selectData);
       });
     }
 
@@ -721,5 +756,18 @@ class InfoMap extends Component{
   }
 }
 
+function merge(bigArray) {
+  let array = [];
+  const middeleArray = bigArray.reduce((a,b) => {
+    return a.concat(b);
+  });
+
+  middeleArray.forEach((midItem) => {
+    if(array.findIndex((arrItem) => midItem.id == arrItem.id) == -1){
+      array.push(midItem);
+    }
+  });
+  return array;
+}
 
 export default InfoMap;

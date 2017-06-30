@@ -61,19 +61,7 @@ class GMap extends Component{
     this.lines.push(line);
     line.setMap(this.map);
   }
-  //test{
-  /*  lat: 39.92, 
-      lng: 116.46,
-      data: {
-        name: '威斯敏斯特大教堂威斯敏斯特大教堂',
-        type: 'asda',
-        playtime: 'asdddd',
-        img: 'asd',
-      },
-      content:"<div>asdadsad</div>",
-      needInfo: true
-    }
-  */
+
   renderMakers() {
     const { markers=[] } = this.props;
     this.markers.forEach((marker) => {
@@ -94,14 +82,7 @@ class GMap extends Component{
     const newOptions = assign(this.default.options, options);
     if(posOptions) {
       utils.fitMap(this.map, posOptions)
-    } /*else {
-      if(!centerDisabled) {
-        this.map.setCenter(newOptions.center);
-      }
-      if(!zoomDisabled) {
-        this.map.setZoom(newOptions.zoom);
-      }
-    }*/
+    }
     this.renderLines();
     this.renderMakers();
   }
@@ -121,7 +102,7 @@ class GMap extends Component{
       console.log('error no data');
       return;
     }
-    const { name, type, playtime, point='', img } = data;
+    const { name, type, playtime, point='', img, noHover } = data;
     const info = document.createElement('div');
     info.innerHTML = "<img class='info-img' src="+img+" /><div class='info-desc-wrap'><span class='info-name over-hide'>"+name+"</span><span class='info-type over-hide'>"+type+"</span><div class='time-point'><span class='info-point over-hide'>"+point+"</span><span class='info-time over-hide'>"+playtime+"</span></div></div>";
     info.className = 'info-container';
@@ -146,12 +127,12 @@ class GMap extends Component{
     };
 
     const circle = ele.firstChild;
-    circle.onmouseover = function() {
+    circle.onmouseover = !noHover && function() {
       info.style.display = 'flex';
       tag.style.display = 'none';
       ele.style.zIndex = '1000';
     };
-    circle.onmouseout = function() {
+    circle.onmouseout = !noHover && function() {
       info.style.display = 'none';
       tag.style.display = 'inline-block';
       ele.style.zIndex = '999';
@@ -159,7 +140,11 @@ class GMap extends Component{
 
     circle.position = 'relative';
     circle.appendChild(tag);
-    circle.appendChild(info);
+    if(!noHover) {
+      circle.appendChild(info);
+    }else {
+      circle.style.cursor = 'default';
+    }
   }
 
   loadMap() {

@@ -1,6 +1,6 @@
 {
   "name": "react-gmap-mj",
-  "version": "1.8.8-beta.1",
+  "version": "1.8.8-alpha.3",
   "description": "react google map",
   "main": "lib/index.js",
   "scripts": {
