@@ -34,7 +34,7 @@ export function latLng(lat, lng) {
   return new google.maps.LatLng(lat, lng);
 }
 
-export function fitMap(map, options) {
+export function fitMap(map, options, getProjection) {
   if(!options.coords || options.coords.lenght == 0) {
     return;
   }
@@ -65,9 +65,16 @@ export function fitMap(map, options) {
 
     coords.push({lat: leftTop(coords).top - offset.top, lng: leftTop(coords).left - offset.left});
     fitBounds(map, coords);
+    getProjection && getProjection(proj);
   }
 
   latToCoords(map, projCb);
+}
+
+export function getValue(path, obj) {
+  return path.reduce(function(acc, value) {
+    return (acc && acc[value]) ? acc[value] : null
+  }, obj);
 }
 
 function fitBounds(map, coords) {

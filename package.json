@@ -42,9 +42,10 @@
   "homepage": "https://github.com/fanlz/react-gmap#readme",
   "dependencies": {
     "antd": "^2.5.1",
-    "superagent": "^3.0.0",
+    "lodash": "^4.17.4",
     "pubsub-js": "^1.5.4",
     "react": "^15.0.2",
-    "react-dom": "^15.0.1"
+    "react-dom": "^15.0.1",
+    "superagent": "^3.0.0"
   }
 }
