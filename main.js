@@ -196,10 +196,10 @@ class App extends Component {
         列表 -
       </div>
         <InfoMap
-          whole={_.cloneDeep(data)}
+          whole={[]}
           selected={_.cloneDeep(select)}
           options={null}
-          infinite={true}
+          infinite={false}
           order={order}
           ref={(ref) => this.map = ref}
           onClick={this.onClick.bind(this)}

@@ -272,7 +272,8 @@ class InfoMap extends Component{
   }
 
   initMarker() {
-    const { selected = [], whole} = this.props;
+    const { selected = [], whole = []} = this.props;
+    const newWhole = merge([selected, whole]);
 
     this.markers.map((mMarker) => {
       mMarker.marker.setMap(null);
@@ -284,7 +285,7 @@ class InfoMap extends Component{
     this.hoverState = false;
     // 处理数据
 
-    whole && whole.map((data) => {
+    newWhole && newWhole.map((data) => {
       const { id, first, second, third, img, position, type } = data;
       const idx = selected.findIndex((select) => select.id == id);
       const mData = {
@@ -304,11 +305,11 @@ class InfoMap extends Component{
 
       this.markers.push(mData);
     })
-    selected.map((select) => {
-      if(this.markers.findIndex((m) => m.id == select.id) < 0) {
-        this.markers.push(select);
-      }
-    });
+    // selected.map((select) => {
+    //   if(this.markers.findIndex((m) => m.id == select.id) < 0) {
+    //     this.markers.push(select);
+    //   }
+    // });
   }
 
   // 重置地图镜头
@@ -331,14 +332,14 @@ class InfoMap extends Component{
     if(!infinite && !!this.infoBubble && this.infoBubble.isOpen()) {
       if(!data.selected) {
         // 选中
-        onSelect && onSelect(1, selectData);
+        onSelect && onSelect(selectData.type, selectData, 1);
       }else {
         // 取消
-        onSelect && onSelect(0, selectData);
+        onSelect && onSelect(selectData.type, selectData, 0);
       }
     }else if(infinite) {
       // 可选重复
-      onSelect && onSelect(1, selectData);
+      onSelect && onSelect(selectData.type, selectData, 1);
     }
   }
 
@@ -580,7 +581,7 @@ class InfoMap extends Component{
   }
 
   setSelected(marker) {
-    this.setIcon(ICON_SUB);
+    this.setIcon(ICON_SUB, true);
     marker.setIcon(this.BR_Icon);
   }
 
@@ -589,10 +590,17 @@ class InfoMap extends Component{
     marker.setIcon(this.markerID && this.markerID == id ? this.BB_Icon : this.SB_Icon);
   }
 
-  setIcon(icon) {
-    const content = this.infoBubble.getContent();
-    const btn = content.getElementsByClassName('btn-wrap')[0];
-    btn.innerHTML = icon;
+  setIcon(icon, grayBG) {
+    if(!!this.infoBubble) {
+      const content = this.infoBubble.getContent();
+      const btn = content.getElementsByClassName('btn-wrap')[0];
+      btn.innerHTML = icon;
+      if(grayBG) {
+        btn.style.backgroundColor = "#595959";
+      }else {
+        btn.style.backgroundColor = "#0061f3";
+      }
+    }
   }
 
   setButtonState(select) {
@@ -602,7 +610,7 @@ class InfoMap extends Component{
       this.setIcon(ICON_ADD);
     }else if(select) {
       // 选中
-      this.setIcon(ICON_SUB);
+      this.setIcon(ICON_SUB, true);
     }else {
       // 取消
       this.setIcon(ICON_ADD);
