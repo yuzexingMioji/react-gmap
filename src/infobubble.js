@@ -827,7 +827,7 @@ InfoBubble.prototype.addEvents_ = function() {
         if (e.stopPropagation) {
           e.stopPropagation();
         }
-      })
+      }, {passive: true})
     );
   }
 };
