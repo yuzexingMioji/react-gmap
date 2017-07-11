@@ -133,13 +133,18 @@ class InfoMap extends Component{
       return;
     }
 
-    const newMarkers = merge([nWhole, nSelected]);
+
+    const seen = new Map()
+    const uniqueArr = nSelected.filter((a) => !seen.has(a.id) && seen.set(a.id, 1));
+    
+    const newMarkers = merge([nWhole, uniqueArr]);
+
     const nextMarkers = [];
     this.markers.map((oldMarker) => {
       const stay = newMarkers.find((newMarker) => newMarker.id == oldMarker.id);
       if(stay) {
         // 被保留的marker 可能是状态发生变化
-        const select = nSelected.find((s) => s.id == stay.id);
+        const select = uniqueArr.find((s) => s.id == stay.id);
         if(select && !oldMarker.selected) {
           // 改变状态
           this.initSelectState(oldMarker.marker, true);
@@ -179,8 +184,7 @@ class InfoMap extends Component{
 
     this.markers = nextMarkers.concat(middeleArray);
 
-    const seen = new Map()
-    const uniqueArr = nSelected.filter((a) => !seen.has(a.id) && seen.set(a.id, 1))
+   
 
     const path = [];
     uniqueArr.map((s) => {
@@ -273,7 +277,16 @@ class InfoMap extends Component{
 
   initMarker() {
     const { selected = [], whole = []} = this.props;
-    const newWhole = merge([selected, whole]);
+
+    const seen = new Map()
+    const uniqueArr = selected.filter((a) => !seen.has(a.id) && seen.set(a.id, 1))
+
+    // const path = [];
+    // uniqueArr.map((s) => {
+    //   path.push(s.position);
+    // });
+
+    const newWhole = merge([uniqueArr, whole]);
 
     this.markers.map((mMarker) => {
       mMarker.marker.setMap(null);
