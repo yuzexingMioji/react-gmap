@@ -18,7 +18,7 @@ class App extends Component {
         first: '宋美龄博物馆蒋介石故居1231231231',
         second: 'bowuguan蒋介石故居1231231231',
         third: 'CNY 666 起',
-        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
       },
       {
         id: 1231231,
@@ -29,7 +29,7 @@ class App extends Component {
         first: '蒋介石故居1231231231',
         second: 'laojia蒋介石故居1231231231',
         third: '8.5',
-        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
       },
       {
         id: 12312315,
@@ -40,7 +40,7 @@ class App extends Component {
         second: 'laojia2',
         type: 1,
         third: '游玩时长4h',
-        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
       },
       {
         id: 12311,
@@ -51,7 +51,7 @@ class App extends Component {
         second: 'laojia3',
         type: 512,
         third: '游玩时长5h',
-        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
       },
       {
         id: 123123123,
@@ -62,7 +62,7 @@ class App extends Component {
         second: 'bowuguan1',
         third: '游玩时长2h',
         type: 4,
-        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
       },
       {
         id: 123111,
@@ -73,7 +73,7 @@ class App extends Component {
         second: 'bowuguan1',
         third: '游玩时长2h',
         type: 4,
-        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
       },
     ]
 
@@ -87,7 +87,7 @@ class App extends Component {
         first: '宋美龄博物馆蒋介石故居1231231231',
         second: 'bowuguan蒋介石故居1231231231',
         third: 'CNY 666 起',
-        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
       },
       {
         id: 1231231,
@@ -98,7 +98,7 @@ class App extends Component {
         first: '蒋介石故居1231231231',
         second: 'laojia蒋介石故居1231231231',
         third: '8.5',
-        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
       },
       {
         id: 12312315,
@@ -109,7 +109,7 @@ class App extends Component {
         second: 'laojia2',
         type: 1,
         third: '游玩时长4h',
-        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
       },
     ];
 
@@ -196,10 +196,10 @@ class App extends Component {
         列表 -
       </div>
         <InfoMap
-          whole={[]}
+          whole={_.cloneDeep(data)}
           selected={_.cloneDeep(select)}
           options={null}
-          infinite={false}
+          infinite={true}
           order={order}
           ref={(ref) => this.map = ref}
           onClick={this.onClick.bind(this)}
