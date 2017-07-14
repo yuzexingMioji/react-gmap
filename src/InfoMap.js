@@ -196,9 +196,10 @@ class InfoMap extends Component{
     uniqueArr.map((s) => {
       path.push(s.position);
     });
-
-    this.lineOnMap.setPath(path);
-    this.lineOnMap.setMap(nOrder ? this.map : null);
+    if(this.lineOnMap) {
+      this.lineOnMap.setPath(path);
+      this.lineOnMap.setMap(nOrder ? this.map : null);
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {

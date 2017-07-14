@@ -81,9 +81,9 @@ function fitBounds(map, coords) {
   if(!window.google) {
     return;
   }
-  if(coords && coords.lenght == 1 || true) {
+  if(coords && coords.lenght == 1) {
     // 单点特殊处理 约500m比例尺
-    map.panTo(coords[0]);
+    map.panTo(new google.maps.LatLng(coords[0].lat, coords[0].lng));
     map.setZoom(14);
     return;
   }
