@@ -16,7 +16,7 @@
 	height: 100%;
 	display: flex;
 	align-items: center;
-	.map-img {
+	.gmap-info-map-img {
 		width: 100px;
 		height: 66px;
 		border-radius: 2px;
@@ -31,26 +31,26 @@
 		max-width: 144px;
 		margin-right: 30px;
 	}
-	.first-title {
+	.gmap-info-map-first-title {
 		flex: 1;
 		font-size: 16px;
 		font-weight: 600;
 		line-height: 1.25;
 		color: #333333;
 	}
-	.second-title {
+	.gmap-info-map-second-title {
 		flex: 1;
 		font-size: 12px;
 		line-height: 1.67;
 		color: #808080;
 	}
-	.third-title {
+	.gmap-info-map-third-title {
 		flex: 1;
 		font-size: 12px;
 		line-height: 1.67;
 		color: #808080;
 	}
-	.btn-wrap {
+	.gmap-info-map-btn-wrap {
 		width: 30px;
 		height: 30px;
 		border-radius: 2px;

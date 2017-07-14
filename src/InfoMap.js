@@ -120,6 +120,9 @@ class InfoMap extends Component{
   }
 
   componentWillReceiveProps(nextProps) {
+    if(!window.google) {
+      return;
+    }
     // 过滤重复已选城市/地图内部不考虑重复点
 
     // 有序 展示连线 无序移除连线
@@ -160,8 +163,8 @@ class InfoMap extends Component{
         nextMarkers.push(oldMarker);
       }else {
         // marker被移除了
-        oldMarker.marker.setMap(null);
         oldMarker.label.close();
+        oldMarker.marker.setMap(null);
         if(oldMarker.id == this.markerID) {
           this.infoBubble.close();
         }
@@ -175,11 +178,11 @@ class InfoMap extends Component{
 
         const select = nSelected.findIndex((s) => s.id == newMarker.id);
         newMarker.selected = select >= 0;
-
-        const { marker, label } = this.addMarkerWithInfoBubble(newMarker);
-
-        newMarker.marker = marker;
-        newMarker.label = label;
+        if(!newMarker.marker && !newMarker.label) {
+          const { marker, label } = this.addMarkerWithInfoBubble(newMarker);
+          newMarker.marker = marker;
+          newMarker.label = label;
+        }
 
         middeleArray.push(newMarker);
       }
@@ -214,7 +217,7 @@ class InfoMap extends Component{
     this.initIcon();
     this.initLine();
     this.initMarker();
-    this.initMapLens();
+    // this.initMapLens();
   }
 
   getProjection(projection) {
@@ -284,16 +287,11 @@ class InfoMap extends Component{
     const seen = new Map()
     const uniqueArr = selected.filter((a) => !seen.has(a.id) && seen.set(a.id, 1))
 
-    // const path = [];
-    // uniqueArr.map((s) => {
-    //   path.push(s.position);
-    // });
-
     const newWhole = merge([uniqueArr, whole]);
 
     this.markers.map((mMarker) => {
-      mMarker.marker.setMap(null);
       mMarker.label.close();
+      mMarker.marker.setMap(null);
     });
 
     this.markers = [];
@@ -321,11 +319,6 @@ class InfoMap extends Component{
 
       this.markers.push(mData);
     })
-    // selected.map((select) => {
-    //   if(this.markers.findIndex((m) => m.id == select.id) < 0) {
-    //     this.markers.push(select);
-    //   }
-    // });
   }
 
   // 重置地图镜头
@@ -376,17 +369,17 @@ class InfoMap extends Component{
     const style = this.styleDist(type);
 
     content.innerHTML = 
-    "<img class='map-img' src="+ imageUrl +" />"
+    "<img class='gmap-info-map-img' src="+ imageUrl +" />"
     +"<div class='map-info-wrap'>"
-      +"<span class='first-title over-hide "+ style.extraCool +"'>"+first+"</span>"
-      +"<span class='second-title over-hide "+ style.extraCooler +"'>"+second+"</span>"
-      +"<span class='third-title over-hide "+ style.extraCoolest +"'>"+third+"</span>"  
+      +"<span class='gmap-info-map-first-title over-hide "+ style.extraCool +"'>"+first+"</span>"
+      +"<span class='gmap-info-map-second-title over-hide "+ style.extraCooler +"'>"+second+"</span>"
+      +"<span class='gmap-info-map-third-title over-hide "+ style.extraCoolest +"'>"+third+"</span>"  
     +"</div>"
-    +"<div class='btn-wrap "+ style.icon +"' id='btn-option'>"
+    +"<div class='gmap-info-map-btn-wrap "+ style.icon +"' id='btn-option'>"
       + icon
     +"</div>";
     content.className = 'gmap-info-bubble-info-wrap';
-    const btn = content.getElementsByClassName('btn-wrap')[0];
+    const btn = content.getElementsByClassName('gmap-info-map-btn-wrap')[0];
     btn.onclick = () => this.optionClick(data);
     return content;
   }
@@ -438,6 +431,7 @@ class InfoMap extends Component{
       case 16384:
       case 32768:
       case 65536:
+      case 136125:
       case 131072:
       case 262144:
       case 524288:
@@ -611,7 +605,7 @@ class InfoMap extends Component{
   setIcon(icon, grayBG) {
     if(!!this.infoBubble) {
       const content = this.infoBubble.getContent();
-      const btn = content.getElementsByClassName('btn-wrap')[0];
+      const btn = content.getElementsByClassName('gmap-info-map-btn-wrap')[0];
       btn.innerHTML = icon;
       if(grayBG) {
         btn.style.backgroundColor = "#595959";
@@ -660,7 +654,7 @@ class InfoMap extends Component{
     if(!!mMarker) {
       mMarker.marker.setAnimation(google.maps.Animation.BOUNCE);
 
-      this.moveToVisibile(mMarker);
+      // this.moveToVisibile(mMarker);
     }
   }
 
@@ -723,7 +717,7 @@ class InfoMap extends Component{
     mMarker.marker.setZIndex(HIGHER_Z_INDEX);
     // 记录当前marker id
     this.markerID = id;
-    this.moveToVisibile(mMarker);
+    // this.moveToVisibile(mMarker);
   }
 
   resetMarker(id, force) {

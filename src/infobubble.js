@@ -814,9 +814,9 @@ InfoBubble.prototype.px = function(num) {
  */
 InfoBubble.prototype.addEvents_ = function() {
   // We want to cancel all the events so they do not go to the map
-  var events = ['mousedown', 'mousemove', 'mouseover', 'mouseout', 'mouseup',
-      'mousewheel', 'DOMMouseScroll', 'touchstart', 'touchend', 'touchmove',
-      'dblclick', 'contextmenu', 'click'];
+  var events = [/*'mousedown', 'mousemove', 'mouseover', 'mouseout', 'mouseup',
+      'mousewheel'*/, 'DOMMouseScroll', 'touchstart', 'touchend', 'touchmove',
+      /*'dblclick', */'contextmenu', /*'click'*/];
 
   var bubble = this.bubble_;
   this.listeners_ = [];

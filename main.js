@@ -1,6 +1,6 @@
 import React, {Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import {InfoMap} from './src';
+import {InfoMap } from './src';
 
 class App extends Component {
 
@@ -182,6 +182,7 @@ class App extends Component {
   onClick(type, data) {
     console.log(type);
     console.log(data);
+    this.map.initMapLens();
   }
 
   render() {
@@ -198,7 +199,6 @@ class App extends Component {
         <InfoMap
           whole={_.cloneDeep(data)}
           selected={_.cloneDeep(select)}
-          options={null}
           infinite={true}
           order={order}
           ref={(ref) => this.map = ref}

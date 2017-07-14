@@ -81,6 +81,12 @@ function fitBounds(map, coords) {
   if(!window.google) {
     return;
   }
+  if(coords && coords.lenght == 1 || true) {
+    // 单点特殊处理 约500m比例尺
+    map.panTo(coords[0]);
+    map.setZoom(14);
+    return;
+  }
   let bounds = new google.maps.LatLngBounds();
   coords && coords.forEach((coord) => {
     bounds.extend(new google.maps.LatLng(coord.lat, coord.lng));
