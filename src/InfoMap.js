@@ -143,7 +143,6 @@ class InfoMap extends Component{
       return;
     }
 
-
     const seen = new Map()
     const uniqueArr = nSelected.filter((a) => !seen.has(a.id) && seen.set(a.id, 1));
     
@@ -548,9 +547,9 @@ class InfoMap extends Component{
       }
 
       IB_Small.close();
-      this.openInfoBubble(content, marker, data);
+      // const mMarker = this.markers.find((m) => m.id == id);
+      this.openInfoBubble(this.createContent(data), marker, data);
       this.focusMarker(data, data.selected, id);
-      // event.ta.currentTarget.style.opacity="1"
       const { onHover } = this.props;
       onHover && onHover(type, id);
     })
