@@ -35,7 +35,7 @@ export function latLng(lat, lng) {
 }
 
 export function fitMap(map, options, getProjection) {
-  if(!options.coords || options.coords.lenght == 0) {
+  if(!options.coords || options.coords.length == 0) {
     return;
   }
   let coords = options.coords;
@@ -53,18 +53,18 @@ export function fitMap(map, options, getProjection) {
   }
 
   const projCb = function(proj) {
-    const defaultPix = {x: 0, y: 0};
-    const pix = options.pix || defaultPix;
-    const c1 = new google.maps.Point(0, 0);
-    const c2 = new google.maps.Point(pix.x, pix.y);
+    // const defaultPix = {x: 0, y: 0};
+    // const pix = options.pix || defaultPix;
+    // const c1 = new google.maps.Point(0, 0);
+    // const c2 = new google.maps.Point(pix.x, pix.y);
 
-    const coord1 = proj.fromContainerPixelToLatLng(c1);
-    const coord2 = proj.fromContainerPixelToLatLng(c2);
+    // const coord1 = proj.fromContainerPixelToLatLng(c1);
+    // const coord2 = proj.fromContainerPixelToLatLng(c2);
 
-    const offset = {left: coord2.lng() - coord1.lng(), top: coord2.lat() - coord1.lat()};
+    // const offset = {left: coord2.lng() - coord1.lng(), top: coord2.lat() - coord1.lat()};
 
-    coords.push({lat: leftTop(coords).top - offset.top, lng: leftTop(coords).left - offset.left});
-    fitBounds(map, coords);
+    // coords.push({lat: leftTop(coords).top - offset.top, lng: leftTop(coords).left - offset.left});
+    // fitBounds(map, coords);
     getProjection && getProjection(proj);
   }
 
@@ -81,7 +81,7 @@ function fitBounds(map, coords) {
   if(!window.google) {
     return;
   }
-  if(coords && coords.lenght == 1) {
+  if(coords && coords.length == 1) {
     // 单点特殊处理 约500m比例尺
     map.panTo(new google.maps.LatLng(coords[0].lat, coords[0].lng));
     map.setZoom(14);

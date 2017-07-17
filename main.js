@@ -163,18 +163,7 @@ class App extends Component {
   }
 
   removeNewMarker() {
-    const { select, data } = this.state;
-    this.setState({data: [], select:[]});
-    setTimeout(() => {
-      data.splice(0,1);
-      this.setState({
-        select,
-        data,
-        order: true
-      });
-      this.map.initMapLens();
-    }, 1000);
-    return;
+    this.map.initMapLens();
     
     
   }
@@ -190,15 +179,15 @@ class App extends Component {
     return (
       
       <div style={{width: '800px', height: '800px'}} >
-      <div onClick={this.addNewMarker.bind(this)} onMouseOver={()=>this.map.startBounce(123111)} onMouseOut={()=>this.map.stopBounce(123111)}>
+      <div onClick={this.addNewMarker.bind(this)} >
         列表 +
       </div>
-      <div onClick={this.removeNewMarker.bind(this)} onMouseOver={()=>this.map.startBounce(12312315)} onMouseOut={()=>this.map.stopBounce(12312315)}>
+      <div onClick={this.removeNewMarker.bind(this)}>
         列表 -
       </div>
         <InfoMap
-          whole={_.cloneDeep(data)}
-          selected={_.cloneDeep(select)}
+          whole={_.cloneDeep([data[0]])}
+          selected={[]}
           infinite={true}
           order={order}
           ref={(ref) => this.map = ref}
