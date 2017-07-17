@@ -127,6 +127,7 @@ class InfoMap extends Component{
     if(!window.google) {
       return;
     }
+    debugger
     // 过滤重复已选城市/地图内部不考虑重复点
 
     // 有序 展示连线 无序移除连线
@@ -136,7 +137,7 @@ class InfoMap extends Component{
     const nOrder = nextProps.order;
     const nSelected = nextProps.selected || [];
 
-    if(isEqual(nWhole, whole) && isEqual(nSelected, nWhole)) {
+    if(isEqual(nWhole, whole) && isEqual(nSelected, selected)) {
       if(order != nOrder && !!this.lineOnMap) {
         this.lineOnMap.setMap(nOrder ? this.map : null);
       }
@@ -180,13 +181,15 @@ class InfoMap extends Component{
       const marker = nextMarkers.find((nextMarker) => nextMarker.id == newMarker.id);
       // 新添加的marker, 添加到地图上
       if(!marker) {
-
         const select = nSelected.findIndex((s) => s.id == newMarker.id);
         newMarker.selected = select >= 0;
         if(!newMarker.marker && !newMarker.label) {
           const { marker, label } = this.addMarkerWithInfoBubble(newMarker);
           newMarker.marker = marker;
           newMarker.label = label;
+        }else {
+          newMarker.marker.setMap(this.map);
+          newMarker.label.open(this.map, newMarker.marker);
         }
 
         middeleArray.push(newMarker);

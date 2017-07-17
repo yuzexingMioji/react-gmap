@@ -12,10 +12,10 @@ class App extends Component {
       {
         id: 123123,
         position: {
-          lat: 39.92, lng: 116.46
+          lat: 49.92, lng: 116.46
         },
         type: 16384,
-        first: '宋美龄博物馆蒋介石故居1231231231',
+        first: '1',
         second: 'bowuguan蒋介石故居1231231231',
         third: 'CNY 666 起',
         img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
@@ -23,10 +23,10 @@ class App extends Component {
       {
         id: 1231231,
         position: {
-          lat: 40.92, lng: 119.46
+          lat: 42.92, lng: 119.46
         },
         type: 2,
-        first: '蒋介石故居1231231231',
+        first: '2',
         second: 'laojia蒋介石故居1231231231',
         third: '8.5',
         img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
@@ -34,9 +34,9 @@ class App extends Component {
       {
         id: 12312315,
         position: {
-          lat: 42.92, lng: 129.46
+          lat: 41.92, lng: 129.46
         },
-        first: '蒋介石故居2',
+        first: '3',
         second: 'laojia2',
         type: 1,
         third: '游玩时长4h',
@@ -45,9 +45,9 @@ class App extends Component {
       {
         id: 12311,
         position: {
-          lat: 46.92, lng: 121.46
+          lat: 48.92, lng: 121.46
         },
-        first: '蒋介石故居3',
+        first: '4',
         second: 'laojia3',
         type: 512,
         third: '游玩时长5h',
@@ -56,9 +56,9 @@ class App extends Component {
       {
         id: 123123123,
         position: {
-          lat: 59.92, lng: 126.46
+          lat: 52.92, lng: 126.46
         },
-        first: '宋美龄博物馆1',
+        first: '5',
         second: 'bowuguan1',
         third: '游玩时长2h',
         type: 4,
@@ -67,9 +67,9 @@ class App extends Component {
       {
         id: 123111,
         position: {
-          lat: 59.92, lng: 176.46
+          lat: 51.92, lng: 176.46
         },
-        first: '宋美龄博物馆1',
+        first: '6',
         second: 'bowuguan1',
         third: '游玩时长2h',
         type: 4,
@@ -79,33 +79,33 @@ class App extends Component {
 
     this.data2 = [
       {
-        id: 123123,
+        id: 12312312,
         position: {
-          lat: 39.92, lng: 116.46
+          lat: 32.92, lng: 116.46
         },
         type: 16384,
-        first: '宋美龄博物馆蒋介石故居1231231231',
+        first: '11',
         second: 'bowuguan蒋介石故居1231231231',
         third: 'CNY 666 起',
         img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
       },
       {
-        id: 1231231,
+        id: 12312311,
         position: {
-          lat: 40.92, lng: 119.46
+          lat: 42.92, lng: 119.46
         },
         type: 2,
-        first: '蒋介石故居1231231231',
+        first: '12',
         second: 'laojia蒋介石故居1231231231',
         third: '8.5',
         img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
       },
       {
-        id: 12312315,
+        id: 123123151,
         position: {
-          lat: 42.92, lng: 129.46
+          lat: 44.92, lng: 129.46
         },
-        first: '蒋介石故居2',
+        first: '13',
         second: 'laojia2',
         type: 1,
         third: '游玩时长4h',
@@ -117,6 +117,7 @@ class App extends Component {
     this.state = {
       data: this.data,
       select: this.data2,
+      i: 0
     };
   }
 
@@ -128,14 +129,8 @@ class App extends Component {
       select.splice(sb, 1);
     }else {
       // add
-      // const sb = this.data.find((m) => m.id == id);
       select.push(selectData);
     }
-    // let i = 0;
-    // this.data2.sort(() => {
-    //   i++;
-    //   return i%2;
-    // });
     this.setState({
       select,
       data,
@@ -143,23 +138,14 @@ class App extends Component {
     });
   }
   addNewMarker() {
-    const { select, data } = this.state;
-    data.push({
-        id: 12312301,
-        position: {
-          lat: 39.92, lng: 119.46
-        },
-        type: 1024,
-        first: '蒋介石故居1231231231',
-        second: 'laojia蒋介石故居1231231231',
-        third: '320个国家',
-        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg@base@tag=imgScale&h=66&w=100&rotate=0&c=1&m=2'
-      },);
+    const { select, data, i } = this.state;
+    console.log(i % 2 == 0);
     this.setState({
-      // select,
-      data,
-      order: false
+      data: i % 2 == 0 ? this.data : this.data2,
+      order: false,
+      i: i + 1
     });
+    this.map.initMapLens();
   }
 
   removeNewMarker() {
@@ -169,13 +155,12 @@ class App extends Component {
   }
 
   onClick(type, data) {
-    console.log(type);
-    console.log(data);
     this.map.initMapLens();
   }
 
   render() {
     const { data, select, order } = this.state;
+    console.log(data);
     return (
       
       <div style={{width: '800px', height: '800px'}} >
@@ -186,13 +171,13 @@ class App extends Component {
         列表 -
       </div>
         <InfoMap
-          whole={_.cloneDeep([data[0]])}
-          selected={select}
-          infinite={true}
-          order={order}
+          whole={data}
+          selected={[]}
+          // infinite={true}
+          // order={order}
           ref={(ref) => this.map = ref}
-          onClick={this.onClick.bind(this)}
-          onSelect={this.onSelect.bind(this)}   
+          // onClick={this.onClick.bind(this)}
+          // onSelect={this.onSelect.bind(this)}   
         />
       </div>
     )
