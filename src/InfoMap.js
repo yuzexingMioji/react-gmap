@@ -127,7 +127,7 @@ class InfoMap extends Component{
     if(!window.google) {
       return;
     }
-    debugger
+
     // 过滤重复已选城市/地图内部不考虑重复点
 
     // 有序 展示连线 无序移除连线
@@ -167,6 +167,8 @@ class InfoMap extends Component{
         // 新数据替换旧数据 ...
         Object.assign(oldMarker, stay);
         nextMarkers.push(oldMarker);
+        oldMarker.marker.setMap(this.map);
+        oldMarker.label.open(this.map, oldMarker.marker);
       }else {
         // marker被移除了
         oldMarker.label.close();
@@ -335,7 +337,7 @@ class InfoMap extends Component{
       allCoords = whole.map((marker) => marker.position);
     }
     if(allCoords && allCoords.length > 0) {
-      utils.fitMap(this.map, { coords: allCoords }, this.getProjection);
+      utils.fitMap(this.map, { coords: allCoords }/*, this.getProjection*/);
     }else if(!reset) {
       setTimeout(() => this.initMapLens([], true), 50);
     }
@@ -525,7 +527,7 @@ class InfoMap extends Component{
     const marker = new google.maps.Marker({
       position: position,
       map: this.map,
-      optimized: false,
+      optimized: true,
       zIndex: NORMAL_Z_INDEX
     })
 
