@@ -25,7 +25,8 @@ class GMap extends Component{
       lineStyle: {
         strokeColor: '#2ec7fa',
         strokeOpacity: 1.0,
-        strokeWeight: 3
+        strokeWeight: 3,
+        cursor: 'default'
       },
       options: {
         center: {

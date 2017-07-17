@@ -28,8 +28,8 @@
 		flex-direction: column;
 		margin-left: 12px;
 		flex: 1;
-		max-width: 144px;
-		margin-right: 30px;
+		max-width: 164px;
+		margin-right: 10px;
 	}
 	.gmap-info-map-first-title {
 		flex: 1;
@@ -37,12 +37,15 @@
 		font-weight: 600;
 		line-height: 1.25;
 		color: #333333;
+		display: flex;
+		align-items: center;
 	}
 	.gmap-info-map-second-title {
 		flex: 1;
 		font-size: 12px;
 		line-height: 1.67;
 		color: #808080;
+    max-width: 144px;
 	}
 	.gmap-info-map-third-title {
 		flex: 1;
@@ -54,10 +57,26 @@
 		width: 30px;
 		height: 30px;
 		border-radius: 2px;
-		// background-color: #0061f3;
 		display: flex;
 		margin-right: 20px;
 		cursor: pointer;
+	}
+	.gmap-info-map-first-title-siyou {
+		width: 26px;
+		height: 26px;
+		margin-right: 4px;
+	}
+	.gmap-info-map-btn-blue {
+		background-color: #0061f3;
+		&:hover {
+  		background-color: lighten(#0061f3, 20%);
+		}
+	}
+	.gmap-info-map-btn-gray {
+		background-color: #595959;
+		&:hover {
+  		background-color: lighten(#595959, 20%);
+		}
 	}
 	.btn-icon {
 		margin: auto;

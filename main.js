@@ -187,7 +187,7 @@ class App extends Component {
       </div>
         <InfoMap
           whole={_.cloneDeep([data[0]])}
-          selected={[]}
+          selected={select}
           infinite={true}
           order={order}
           ref={(ref) => this.map = ref}
