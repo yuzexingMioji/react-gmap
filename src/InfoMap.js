@@ -526,7 +526,7 @@ class InfoMap extends Component{
     const marker = new google.maps.Marker({
       position: position,
       map: this.map,
-      optimized: true,
+      optimized: false,
       zIndex: NORMAL_Z_INDEX
     })
 
