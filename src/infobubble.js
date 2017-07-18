@@ -995,9 +995,9 @@ InfoBubble.prototype['close'] = InfoBubble.prototype.close;
  */
 InfoBubble.prototype.open = function(opt_map, opt_anchor) {
   var that = this;
-  window.setTimeout(function() {
+  // window.setTimeout(function() {
     that.open_(opt_map, opt_anchor);
-  }, 0);
+  // }, 0);
 };
 
 

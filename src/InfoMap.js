@@ -127,7 +127,6 @@ class InfoMap extends Component{
     if(!window.google) {
       return;
     }
-
     // 过滤重复已选城市/地图内部不考虑重复点
 
     // 有序 展示连线 无序移除连线
@@ -144,9 +143,10 @@ class InfoMap extends Component{
       return;
     }
 
-    const seen = new Map()
+    let seen = new Map();
     const uniqueArr = nSelected.filter((a) => !seen.has(a.id) && seen.set(a.id, 1));
-    
+    seen.clear();
+    seen = null;
     const newMarkers = merge([nWhole, uniqueArr]);
 
     const nextMarkers = [];
@@ -167,11 +167,10 @@ class InfoMap extends Component{
         // 新数据替换旧数据 ...
         Object.assign(oldMarker, stay);
         nextMarkers.push(oldMarker);
-        oldMarker.marker.setMap(this.map);
-        oldMarker.label.open(this.map, oldMarker.marker);
       }else {
         // marker被移除了
         oldMarker.label.close();
+        oldMarker.label.setMap(null);
         oldMarker.marker.setMap(null);
         if(oldMarker.id == this.markerID) {
           this.infoBubble.close();
@@ -189,11 +188,7 @@ class InfoMap extends Component{
           const { marker, label } = this.addMarkerWithInfoBubble(newMarker);
           newMarker.marker = marker;
           newMarker.label = label;
-        }else {
-          newMarker.marker.setMap(this.map);
-          newMarker.label.open(this.map, newMarker.marker);
         }
-
         middeleArray.push(newMarker);
       }
     });
@@ -299,7 +294,8 @@ class InfoMap extends Component{
     const newWhole = merge([uniqueArr, whole]);
 
     this.markers.map((mMarker) => {
-      mMarker.label.close();
+      // mMarker.label.close();
+      oldMarker.label.setMap(null);
       mMarker.marker.setMap(null);
     });
 
@@ -375,9 +371,10 @@ class InfoMap extends Component{
       icon = ICON_ADD;
     }
 
-    const className = custom == 3 ? 'gmap-info-map-first-title-siyou' : 'noIcon';
-
     const style = this.styleDist(type);
+
+    const className = custom == 3 && style.showPrivate  ? 'gmap-info-map-first-title-siyou' : 'noIcon';
+
 
     content.innerHTML = 
     "<img class='gmap-info-map-img' src="+ imageUrl +" />"
@@ -416,7 +413,8 @@ class InfoMap extends Component{
       extraCooler: '',
       extraCoolest: '',
       icon: '',
-    }
+    };
+    style.showPrivate = true;
     switch(type) {
       case 1:
         break;
@@ -430,7 +428,7 @@ class InfoMap extends Component{
       case 16:
         break;
       case 256:
-        style.extraCoolest = 'shop'
+        style.extraCoolest = 'shop';
         break;
       case 512:
         style.icon = 'noIcon';
@@ -447,6 +445,7 @@ class InfoMap extends Component{
       case 262144:
       case 524288:
         style.extraCoolest = 'play'
+        style.showPrivate = false;
         break;
     }
     return style
@@ -534,8 +533,9 @@ class InfoMap extends Component{
     this.setIconState(marker, selected);
 
     marker.label = IB_Small;
-
-    IB_Small.open(this.map, marker);
+    if(marker.getMap()) {
+      IB_Small.open(this.map, marker);
+    }
     this.infoBubble.close();
 
     marker.addListener('mouseover', (event) => {
