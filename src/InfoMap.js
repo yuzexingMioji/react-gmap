@@ -665,15 +665,15 @@ class InfoMap extends Component{
   startBounce(id) {
     const mMarker = this.markers.find((m) => m.id == id);
     if(!!mMarker) {
+      mMarker.marker.setZIndex(HIGHER_Z_INDEX);
       mMarker.marker.setAnimation(google.maps.Animation.BOUNCE);
-
-      // this.moveToVisibile(mMarker);
     }
   }
 
   stopBounce(id) {
     const mMarker = this.markers.find((m) => m.id == id);
     if(!!mMarker) {
+      mMarker.marker.setZIndex(NORMAL_Z_INDEX);
       mMarker.marker.setAnimation(null);
     }
   }
