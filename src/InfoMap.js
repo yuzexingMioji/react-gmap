@@ -333,6 +333,7 @@ class InfoMap extends Component{
       allCoords = whole.map((marker) => marker.position);
     }
     if(allCoords && allCoords.length > 0) {
+      this.map.setZoom(2);
       utils.fitMap(this.map, { coords: allCoords }/*, this.getProjection*/);
     }else if(!reset) {
       setTimeout(() => this.initMapLens([], true), 50);
