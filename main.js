@@ -1,105 +1,184 @@
 import React, {Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { Upload, Icon, Modal } from 'antd';
-import { GMap, PlaceAutocomplete, utils,Suggestion,MJMap,MapSuggestion } from './src';
-let request = require('superagent');
-
+import {InfoMap } from './src';
 
 class App extends Component {
 
 
 
   constructor(props) { 
-
     super(props);
-    this.state = {
-      addr:'',
-      previewVisible: false,
-      previewImage: '',
-      fileList: [{
-        uid: -1,
-        name: 'xxx.png',
-        status: 'done',
-        url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
+    this.data = [
+      {
+        id: 123123,
+        position: {
+          lat: 49.92, lng: 116.46
+        },
+        type: 16384,
+        first: '1',
+        second: 'bowuguan蒋介石故居1231231231',
+        third: 'CNY 666 起',
+        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
       },
       {
-        uid: 123123,
-        name: 'xxx.png',
-        status: 'done',
-        }],
+        id: 1231231,
+        position: {
+          lat: 42.92, lng: 119.46
+        },
+        type: 2,
+        first: '2',
+        second: 'laojia蒋介石故居1231231231',
+        third: '8.5',
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
+      },
+      {
+        id: 12312315,
+        position: {
+          lat: 41.92, lng: 129.46
+        },
+        first: '3',
+        second: 'laojia2',
+        type: 1,
+        third: '游玩时长4h',
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
+      },
+      {
+        id: 12311,
+        position: {
+          lat: 48.92, lng: 121.46
+        },
+        first: '4',
+        second: 'laojia3',
+        type: 512,
+        third: '游玩时长5h',
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
+      },
+      {
+        id: 123123123,
+        position: {
+          lat: 52.92, lng: 126.46
+        },
+        first: '5',
+        second: 'bowuguan1',
+        third: '游玩时长2h',
+        type: 4,
+        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
+      },
+      {
+        id: 123111,
+        position: {
+          lat: 51.92, lng: 176.46
+        },
+        first: '6',
+        second: 'bowuguan1',
+        third: '游玩时长2h',
+        type: 4,
+        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
+      },
+    ]
+
+    this.data2 = [
+      {
+        id: 12312312,
+        position: {
+          lat: 32.92, lng: 116.46
+        },
+        type: 16384,
+        first: '11',
+        second: 'bowuguan蒋介石故居1231231231',
+        third: 'CNY 666 起',
+        img: 'http://mioji-attr.cdn.mioji.com/v204385_1.jpg'
+      },
+      {
+        id: 12312311,
+        position: {
+          lat: 42.92, lng: 119.46
+        },
+        type: 2,
+        first: '12',
+        second: 'laojia蒋介石故居1231231231',
+        third: '8.5',
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
+      },
+      {
+        id: 123123151,
+        position: {
+          lat: 44.92, lng: 129.46
+        },
+        first: '13',
+        second: 'laojia2',
+        type: 1,
+        third: '游玩时长4h',
+        img: 'http://mioji-attr.cdn.mioji.com/v200463_42.jpg'
+      },
+    ];
+
+
+    this.state = {
+      data: this.data,
+      select: this.data2,
+      i: 0
     };
-    this.handleCancel = this.handleCancel.bind(this);
-    this.handlePreview = this.handlePreview.bind(this);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSelect = this.handleSelect.bind(this);
-    this.uploadAction = this.uploadAction.bind(this);
-    this.beforeUpload = this.beforeUpload.bind(this);
-    this.handleRemove = this.handleRemove.bind(this);
-    this.hasUpload = 0;
-  }
-  handleChange(v1,v2) {
-    this.setState({ fileList:v1.fileList })
-  }
-  handleCancel() {
-    this.setState({ previewVisible: false })
   }
 
-  handleRemove() {
-    this.hasUpload--;
-  }
-
-  beforeUpload(v1,v2) {
-    this.hasUpload++;
-    if(this.hasUpload > 3) {
-      alert('超出文件限制');
-      return false;
+  onSelect(type, selectData) {
+    const { select, data } = this.state;
+    if(type == 0) {
+      // sub
+      const sb = select.findIndex((m) => m.id == selectData.id);
+      select.splice(sb, 1);
+    }else {
+      // add
+      select.push(selectData);
     }
-  }
-
-  handlePreview(file){
     this.setState({
-      previewImage: file.url || file.thumbUrl,
-      previewVisible: true,
+      select,
+      data,
+      order: true
     });
   }
-
-  handleSelect(v1) {
+  addNewMarker() {
+    const { select, data, i } = this.state;
+    console.log(i % 2 == 0);
     this.setState({
-      addr:v1.addr
+      data: i % 2 == 0 ? this.data : this.data2,
+      order: false,
+      i: i + 1
     });
+    this.map.initMapLens();
   }
 
-  uploadAction(v1,v2) {
-    const actionQuery = {
-      type: 'textsearch',
-      query: {
-        language:'zh-CN',
-        file:v1.file
+  removeNewMarker() {
+    this.map.initMapLens();
+    
+    
+  }
 
-      }
-    };
-    request.post(v1.action)
-    .set('charset','utf-8')
-    .send(actionQuery)
-    .then((d1)=>{
-      debugger
-    });
+  onClick(type, data) {
+    this.map.initMapLens();
   }
 
   render() {
-    const { previewVisible, previewImage, fileList,addr } = this.state;
+    const { data, select, order } = this.state;
+    console.log(data);
     return (
-      <div style={{width: '500px', height: '500px'}} >
-        <MJMap
-          centerDisabled={false}
-          zoomDisabled={false}
-          options={null}                                     // 可以对地图做一些初始化配置
-          posOptions={null}/>     
-
-        <MapSuggestion 
-          allowClear={true}
-          allowSearch={true}
-        />     
+      
+      <div style={{width: '800px', height: '800px'}} >
+      <div onClick={this.addNewMarker.bind(this)} >
+        列表 +
+      </div>
+      <div onClick={this.removeNewMarker.bind(this)}>
+        列表 -
+      </div>
+        <InfoMap
+          whole={data}
+          selected={[]}
+          // infinite={true}
+          // order={order}
+          ref={(ref) => this.map = ref}
+          // onClick={this.onClick.bind(this)}
+          // onSelect={this.onSelect.bind(this)}   
+        />
       </div>
     )
   }
