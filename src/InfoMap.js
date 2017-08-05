@@ -36,7 +36,7 @@ const ICON_PRIVATE = "<svg t=\"1500285148071\" class=\"icon\" style=\"\" viewBox
  *   onClick   // marker click(type, id)
  *   onHover   // marker Hover(type, id)
  *   onSelect  // 新增/删除 (type, id) 1/0 新增/删除 markerID
- *   order  // 是否有序   
+ *   order  // 是否有序
  *   infinite // 是否无限添加
  *   noSuffix // 是否需要自动裁剪, 自动加后缀
  *  />
@@ -136,6 +136,12 @@ class InfoMap extends Component{
     const nOrder = nextProps.order;
     const nSelected = nextProps.selected || [];
 
+    // reset path
+    if (this.lineOnMap) {
+      this.lineOnMap.setPath([]);
+      this.lineOnMap.setMap(null);
+    }
+
     if(isEqual(nWhole, whole) && isEqual(nSelected, selected)) {
       if(order != nOrder && !!this.lineOnMap) {
         this.lineOnMap.setMap(nOrder ? this.map : null);
@@ -199,10 +205,13 @@ class InfoMap extends Component{
     nSelected.map((s) => {
       path.push(s.position);
     });
-    if(this.lineOnMap) {
-      this.lineOnMap.setPath(path);
-      this.lineOnMap.setMap(nOrder ? this.map : null);
-    }
+
+    setTimeout(() => {
+      if(this.lineOnMap) {
+        this.lineOnMap.setPath(path);
+        this.lineOnMap.setMap(nOrder ? this.map : null);
+      }
+    }, 10)
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -211,12 +220,12 @@ class InfoMap extends Component{
 
   loadMap() {
     const { options, getMap } = this.props;
-    
+
     const mapDom = ReactDOM.findDOMNode(this.refs.mjmap);
     this.map = new google.maps.Map(mapDom, assign(this.default.options, options));
 
     getMap && getMap(this.map);
-    
+
     this.initMap();
     this.initIcon();
     this.initLine();
@@ -236,7 +245,7 @@ class InfoMap extends Component{
     const newOptions = assign(this.default.options, options);
     if(posOptions) {
       utils.fitMap(this.map, posOptions, this.getProjection)
-    } 
+    }
   }
 
   initIcon() {
@@ -465,9 +474,9 @@ class InfoMap extends Component{
       console.log('无地理位置 error');
       return;
     }
-   
+
     const content = this.createContent(data);
-    
+
     const labelContent = this.createLabel(data);
 
     const IB_Small = new InfoBubble({
@@ -508,7 +517,7 @@ class InfoMap extends Component{
         backgroundClassName: 'gmap-info-bubble-info-container',
         content: content,
       });
-      
+
       this.infoBubble.bubble_.addEventListener('mouseenter', () => {
         this.hoverState = true;
       })
@@ -696,7 +705,7 @@ class InfoMap extends Component{
       markerWithLabel_W =  markerSize.width > labelWidth ? markerSize.width: labelWidth;
       markerWithLabel_H = markerSize.height + LABEL_HEIGHT;
     }
-    
+
 
     const Y = anchor.y - markerWithLabel_H;
     const X = anchor.x - markerWithLabel_W / 2;
