@@ -1,7 +1,6 @@
 const request = require('superagent');    //原地址
-const api = window && window.apiConfig && window.apiConfig[window.location.hostname].php + '/common/global' || 'http://10.10.149.130:86/common/global';
-
-// window.apiConfig[];
+const ADDRESS = '/common/global';
+const api = (window && window.apiConfig && window.apiConfig[window.location.hostname].php || window.apiConfig.localhost.php) + ADDRESS;
 
 export default function postRequest(type, queryString) {
 
@@ -9,7 +8,8 @@ export default function postRequest(type, queryString) {
 		console.log('无api地址');
 		return;
 	}
-	const Auth = window.localStorage.getItem(name);
+
+	const Auth = window.localStorage.getItem('auth');
 	const auth = Auth && JSON.parse(Auth) || {};
 	const url = "maps/api/place/" + type + "/json?"+ queryString +"&lang=zh_cn";
 	const innerQuery = {
@@ -24,7 +24,7 @@ export default function postRequest(type, queryString) {
 		net: 2,
 		uid: '',
 		ptid: auth.ptid,
-		ccy: auth.ccy,
+		ccy: auth.ccy || 'CNY',
 		csuid: auth.csuid,
 		query: innerQuery ? JSON.stringify(innerQuery) : null
 	};
