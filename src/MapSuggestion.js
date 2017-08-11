@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import 'antd/dist/antd.css';
 import Select from 'antd/lib/select';
 import Icon from './Icon';
 import './suggestion.scss';

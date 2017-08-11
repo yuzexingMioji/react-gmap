@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { isEqual, assign } from 'lodash';
+import isEqual from 'lodash/isEqual';
+import assign from 'lodash/assign';
 import * as utils from './utils';
-import 'antd/dist/antd.css';
 import Select from 'antd/lib/select';
 import './index.scss';
 

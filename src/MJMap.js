@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { isEqual, assign } from 'lodash';
+import isEqual from 'lodash/isEqual';
+import assign from 'lodash/assign';
 import * as utils from './utils';
-import 'antd/dist/antd.css';
 import Select from 'antd/lib/select';
 import PubSub from 'pubsub-js';
 import './index.scss';
@@ -92,10 +92,10 @@ class MJMap extends Component{
     }
     const { posOptions, options } = this.props;
     const newOptions = assign(this.default.options, options);
-    
+
     if(posOptions) {
       utils.fitMap(this.map, posOptions)
-    } 
+    }
     this.renderLines();
     this.renderMakers();
   }
@@ -103,7 +103,7 @@ class MJMap extends Component{
   componentDidUpdate(prevProps, prevState) {
     if(!isEqual(this.props, prevProps)) {
       this.updateMap();
-    } 
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
