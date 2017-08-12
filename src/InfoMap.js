@@ -137,17 +137,17 @@ class InfoMap extends Component{
     const nOrder = nextProps.order;
     const nSelected = nextProps.selected || [];
 
-    // reset path
-    if (this.lineOnMap) {
-      this.lineOnMap.setPath([]);
-      this.lineOnMap.setMap(null);
-    }
-
     if(isEqual(nWhole, whole) && isEqual(nSelected, selected)) {
       if(order != nOrder && !!this.lineOnMap) {
         this.lineOnMap.setMap(nOrder ? this.map : null);
       }
       return;
+    }
+
+     // reset path
+    if (this.lineOnMap) {
+      this.lineOnMap.setPath([]);
+      this.lineOnMap.setMap(null);
     }
 
     let seen = new Map();
