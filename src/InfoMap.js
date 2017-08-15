@@ -456,7 +456,7 @@ class InfoMap extends Component{
       case 262144:
       case 524288:
         style.extraCoolest = 'play'
-        style.showPrivate = false;
+        style.showPrivate = true;
         break;
     }
     return style
