@@ -57,7 +57,8 @@ class MJMap extends Component{
         draggingCursor: 'move',
         draggableCursor: 'default',
         disableDoubleClickZoom: false,
-        scrollwheel:false
+        scrollwheel:false,
+        fullscreenControl: false,
       }
     }
   }

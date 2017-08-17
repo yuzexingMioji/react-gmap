@@ -17,7 +17,7 @@ class GMap extends Component{
     this.addInfoWindow = this.addInfoWindow.bind(this);
     this.map = null;
     this.lines = [];
-    this.markers = [];    
+    this.markers = [];
     this.loadTime = 0;
     this.state = {}
 
@@ -46,7 +46,8 @@ class GMap extends Component{
         clickableIcons: false,
         draggingCursor: 'move',
         draggableCursor: 'default',
-        disableDoubleClickZoom: false
+        disableDoubleClickZoom: false,
+        fullscreenControl: false,
       }
     }
   }

@@ -110,7 +110,8 @@ class InfoMap extends Component{
         clickableIcons: false,
         draggingCursor: 'move',
         draggableCursor: 'default',
-        disableDoubleClickZoom: false
+        disableDoubleClickZoom: false,
+        fullscreenControl: false,
       }
     }
   }
