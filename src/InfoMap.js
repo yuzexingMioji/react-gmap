@@ -68,8 +68,9 @@ class InfoMap extends Component{
     this.initSelectState = this.initSelectState.bind(this);
     this.addMarkerWithInfoBubble = this.addMarkerWithInfoBubble.bind(this);
     this.map = null;
-    this.markers = [];    
+    this.markers = [];
     this.loadTime = 0;
+    this.groupLines = [];
     this.state = {};
     /**
      *  当前hover 状态
@@ -80,7 +81,7 @@ class InfoMap extends Component{
      */
     this.markerID = null;
     /**
-     *  真实显示于地图上的路线对象 
+     *  真实显示于地图上的路线对象
      */
     this.lineOnMap = null;
 
@@ -126,7 +127,7 @@ class InfoMap extends Component{
   }
 
   componentWillReceiveProps(nextProps) {
-    if(!window.google) {
+    if (!window.google) {
       return;
     }
     // 过滤重复已选城市/地图内部不考虑重复点
@@ -138,17 +139,18 @@ class InfoMap extends Component{
     const nOrder = nextProps.order;
     const nSelected = nextProps.selected || [];
 
-    if(isEqual(nWhole, whole) && isEqual(nSelected, selected)) {
-      if(order != nOrder && !!this.lineOnMap) {
+    if (isEqual(nWhole, whole) && isEqual(nSelected, selected)) {
+      if (order != nOrder && !!this.lineOnMap) {
         this.lineOnMap.setMap(nOrder ? this.map : null);
+        this.connectGroup(!nOrder, nSelected);
       }
       return;
     }
-
      // reset path
     if (this.lineOnMap) {
       this.lineOnMap.setPath([]);
       this.lineOnMap.setMap(null);
+      // 是否需要reset groupPath see 1 see
     }
 
     let seen = new Map();
@@ -160,14 +162,14 @@ class InfoMap extends Component{
     const nextMarkers = [];
     this.markers.map((oldMarker) => {
       const stay = newMarkers.find((newMarker) => newMarker.id == oldMarker.id);
-      if(stay) {
+      if (stay) {
         // 被保留的marker 可能是状态发生变化
         const select = uniqueArr.find((s) => s.id == stay.id);
-        if(select && !oldMarker.selected) {
+        if (select && !oldMarker.selected) {
           // 改变状态
           this.initSelectState(oldMarker.marker, true);
           oldMarker.selected = true;
-        }else if(!select && oldMarker.selected) {
+        } else if (!select && oldMarker.selected) {
         // 从已选列表中移除的 也需要重置
           this.initSelectState(oldMarker.marker, false, oldMarker.id);
           oldMarker.selected = false;
@@ -175,12 +177,12 @@ class InfoMap extends Component{
         // 新数据替换旧数据 ...
         Object.assign(oldMarker, stay);
         nextMarkers.push(oldMarker);
-      }else {
+      } else {
         // marker被移除了
         oldMarker.label.close();
         oldMarker.label.setMap(null);
         oldMarker.marker.setMap(null);
-        if(oldMarker.id == this.markerID) {
+        if (oldMarker.id == this.markerID) {
           this.infoBubble.close();
         }
       }
@@ -189,10 +191,10 @@ class InfoMap extends Component{
     newMarkers.map((newMarker) => {
       const marker = nextMarkers.find((nextMarker) => nextMarker.id == newMarker.id);
       // 新添加的marker, 添加到地图上
-      if(!marker) {
+      if (!marker) {
         const select = nSelected.findIndex((s) => s.id == newMarker.id);
         newMarker.selected = select >= 0;
-        if(!newMarker.marker && !newMarker.label) {
+        if (!newMarker.marker && !newMarker.label) {
           const { marker, label } = this.addMarkerWithInfoBubble(newMarker);
           newMarker.marker = marker;
           newMarker.label = label;
@@ -207,6 +209,7 @@ class InfoMap extends Component{
     nSelected.map((s) => {
       path.push(s.position);
     });
+    order != nOrder && this.connectGroup(!nOrder, nSelected);
 
     setTimeout(() => {
       if(this.lineOnMap) {
@@ -240,12 +243,12 @@ class InfoMap extends Component{
   }
 
   initMap() {
-    if(!window.google) {
+    if (!window.google) {
       return;
     }
     const { posOptions, options } = this.props;
     const newOptions = assign(this.default.options, options);
-    if(posOptions) {
+    if (posOptions) {
       utils.fitMap(this.map, posOptions, this.getProjection)
     }
   }
@@ -279,7 +282,7 @@ class InfoMap extends Component{
 
   initLine() {
     const { lineStyle, order, selected, whole } = this.props;
-    if(!!lineStyle) {
+    if (!!lineStyle) {
       assign(this.default.lineStyle, lineStyle);
     }
     const path = [];
@@ -294,6 +297,8 @@ class InfoMap extends Component{
     this.lineOnMap.setPath(path);
 
     this.lineOnMap.setMap(order ? this.map : null);
+
+    this.connectGroup(!order, selected);
   }
 
   initMarker() {
@@ -339,14 +344,14 @@ class InfoMap extends Component{
 
   // 重置地图镜头
   initMapLens(allCoords, reset) {
-    if(!allCoords || allCoords.length == 0) {
+    if (!allCoords || allCoords.length == 0) {
       const { whole } = this.props;
       allCoords = whole.map((marker) => marker.position);
     }
-    if(allCoords && allCoords.length > 0) {
+    if (allCoords && allCoords.length > 0) {
       // this.map.setZoom(2);
       utils.noAnimationFit(this.map, { coords: allCoords }/*, this.getProjection*/);
-    }else if(!reset) {
+    } else if (!reset) {
       setTimeout(() => this.initMapLens([], true), 50);
     }
   }
@@ -355,15 +360,15 @@ class InfoMap extends Component{
     const { infinite, onSelect, whole, selected } = this.props;
     const { id, marker } = data;
     const selectData = whole.concat(selected).find((m) => m.id == id);
-    if(!infinite && !!this.infoBubble && this.infoBubble.isOpen()) {
-      if(!data.selected) {
+    if (!infinite && !!this.infoBubble && this.infoBubble.isOpen()) {
+      if (!data.selected) {
         // 选中
         onSelect && onSelect(selectData.type, selectData, 1);
-      }else {
+      } else {
         // 取消
         onSelect && onSelect(selectData.type, selectData, 0);
       }
-    }else if(infinite) {
+    } else if (infinite) {
       // 可选重复
       onSelect && onSelect(selectData.type, selectData, 1);
     }
@@ -375,11 +380,11 @@ class InfoMap extends Component{
     const content = document.createElement('div');
     const imageUrl = noSuffix ? img : img + IMG_SUFFIX;
     let icon;
-    if(infinite) {
+    if (infinite) {
       icon = ICON_ADD;
-    }else if(selected) {
+    } else if (selected) {
       icon = ICON_SUB;
-    }else {
+    } else {
       icon = ICON_ADD;
     }
 
@@ -427,7 +432,7 @@ class InfoMap extends Component{
       icon: '',
     };
     style.showPrivate = true;
-    switch(type) {
+    switch (type) {
       case 1:
         break;
       case 2:
@@ -599,12 +604,12 @@ class InfoMap extends Component{
   initSelectState(marker, select, id) {
     const { infinite } = this.props;
 
-    if(infinite && select) {
+    if (infinite && select) {
       this.setInfiniteSelect(marker, id);
-    }else if(select) {
+    } else if (select) {
       // 选中
       this.setSelected(marker, id);
-    }else {
+    } else {
       // 取消
       this.setUnselected(marker, id);
     }
@@ -626,15 +631,15 @@ class InfoMap extends Component{
   }
 
   setIcon(icon, grayBG) {
-    if(!!this.infoBubble) {
+    if (!!this.infoBubble) {
       const content = this.infoBubble.getContent();
       const btn = content.getElementsByClassName('gmap-info-map-btn-wrap')[0];
       btn.innerHTML = icon;
       btn.classList.remove('gmap-info-map-btn-blue');
       btn.classList.remove('gmap-info-map-btn-gray');
-      if(grayBG) {
+      if (grayBG) {
         btn.classList.add('gmap-info-map-btn-gray', 'gmap-info-map-btn-gray');
-      }else {
+      } else {
         btn.classList.add('gmap-info-map-btn-blue', 'gmap-info-map-btn-blue');
       }
     }
@@ -643,12 +648,12 @@ class InfoMap extends Component{
   setButtonState(select) {
     const { infinite } = this.props;
 
-    if(infinite && select) {
+    if (infinite && select) {
       this.setIcon(ICON_ADD);
-    }else if(select) {
+    } else if (select) {
       // 选中
       this.setIcon(ICON_SUB, true);
-    }else {
+    } else {
       // 取消
       this.setIcon(ICON_ADD);
     }
@@ -657,14 +662,38 @@ class InfoMap extends Component{
   setIconState(marker, select) {
 
     const { infinite } = this.props;
-    if(infinite && select) {
+    if (infinite && select) {
       this.setInfiniteSelect(marker);
-    }else if(select) {
+    } else if (select) {
       // 选中
       this.setSelected(marker);
-    }else {
+    } else {
       // 取消
       this.setUnselected(marker);
+    }
+  }
+
+  connectGroup(boolean, selected) {
+    if (boolean) {
+      let groupID = 0;
+      let group = selected.filter((s) => s.groupID == groupID);
+      while (group.length != 0) {
+        const path = [];
+        group.map((marker) => {
+          path.push(marker.position);
+        })
+        const groupLine = new google.maps.Polyline(this.default.lineStyle);
+        groupLine.setPath(path);
+        groupLine.setMap(this.map);
+        this.groupLines.push(groupLine);
+        groupID++;
+        group = selected.filter((s) => s.groupID == groupID);
+      }
+    } else {
+      this.groupLines.map((line) => {
+        line.setMap(null);
+      });
+      this.groupLines.length = 0;
     }
   }
 
@@ -675,23 +704,45 @@ class InfoMap extends Component{
   }
 
   startBounce(id) {
-    const mMarker = this.markers.find((m) => m.id == id);
-    if(!!mMarker) {
-      mMarker.marker.setZIndex(HIGHER_Z_INDEX);
-      mMarker.marker.setAnimation(google.maps.Animation.BOUNCE);
+    if (typeof id == 'string') {
+      const mMarker = this.markers.find((m) => m.id == id);
+      if (!!mMarker) {
+        this.bounce(mMarker.marker);
+      }
+    } else if (Array.isArray(id)) {
+      const markers = this.markers.filter((m) => id.includes(m.id));
+      markers.map((m) => {
+        this.bounce(m.marker);
+      });
     }
   }
 
   stopBounce(id) {
-    const mMarker = this.markers.find((m) => m.id == id);
-    if(!!mMarker) {
-      mMarker.marker.setZIndex(NORMAL_Z_INDEX);
-      mMarker.marker.setAnimation(null);
+    if (typeof id == 'string') {
+      const mMarker = this.markers.find((m) => m.id == id);
+      if(!!mMarker) {
+        this.beStatic(mMarker.marker);
+      }
+    } else if (Array.isArray(id)) {
+      const markers = this.markers.filter((m) => id.includes(m.id));
+      markers.map((m) => {
+        this.beStatic(m.marker);
+      });
     }
   }
 
+  bounce(marker) {
+    marker.setZIndex(HIGHER_Z_INDEX);
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+  }
+
+  beStatic(marker) {
+    marker.setZIndex(NORMAL_Z_INDEX);
+    marker.setAnimation(null);
+  }
+
   moveToVisibile(mMarker) {
-    if(!this.projection) {
+    if (!this.projection) {
       return;
     }
     const anchor = this.projection.fromLatLngToContainerPixel(mMarker.marker.getPosition());
@@ -699,11 +750,10 @@ class InfoMap extends Component{
     const labelWidth = utils.getValue(['label', 'bubble_', 'clientWidth'], mMarker);
     let markerWithLabel_W;
     let markerWithLabel_H;
-    if(mMarker.id == this.markerID) {
-      // 
+    if (mMarker.id == this.markerID) {
       markerWithLabel_W = INFO_BUBBLE_WIDTH;
       markerWithLabel_H = markerSize.height + INFO_BUBBLE_HEIGHT;
-    }else {
+    } else {
       markerWithLabel_W =  markerSize.width > labelWidth ? markerSize.width: labelWidth;
       markerWithLabel_H = markerSize.height + LABEL_HEIGHT;
     }
@@ -714,27 +764,27 @@ class InfoMap extends Component{
     const mapHeight = this.refs.mjmap.clientHeight;
     const mapWidth = this.refs.mjmap.clientWidth;
 
-    if(X < 0 && Y < 0) {  // 左上
+    if (X < 0 && Y < 0) {  // 左上
       this.map.panBy(X, Y);
-    }else if(X < 0 && Y + markerWithLabel_H < mapHeight && Y > 0) { // 左边
+    } else if (X < 0 && Y + markerWithLabel_H < mapHeight && Y > 0) { // 左边
       this.map.panBy(X, 0);
-    }else if(X + markerWithLabel_W > mapWidth && Y + markerWithLabel_H < mapHeight && Y > 0) { // 右边
+    } else if (X + markerWithLabel_W > mapWidth && Y + markerWithLabel_H < mapHeight && Y > 0) { // 右边
       this.map.panBy(X - mapWidth + markerWithLabel_W, 0);
-    }else if(Y + markerWithLabel_H > mapHeight && X + markerWithLabel_W > mapWidth) {  // 右下
+    } else if (Y + markerWithLabel_H > mapHeight && X + markerWithLabel_W > mapWidth) {  // 右下
       this.map.panBy(X - mapWidth + markerWithLabel_W, Y - mapHeight + markerWithLabel_H);
-    }else if(Y + markerWithLabel_H > mapHeight && X > 0 && X + markerWithLabel_W < mapWidth) {  // 下边
+    } else if (Y + markerWithLabel_H > mapHeight && X > 0 && X + markerWithLabel_W < mapWidth) {  // 下边
       this.map.panBy(0, Y - mapHeight + markerWithLabel_H);
-    }else if(X + markerWithLabel_W < mapWidth && Y < 0 && X > 0) { // 上边
+    } else if (X + markerWithLabel_W < mapWidth && Y < 0 && X > 0) { // 上边
       this.map.panBy(0, Y);
-    }else if(X < 0 && Y + markerWithLabel_H > mapHeight) { // 左下
+    } else if (X < 0 && Y + markerWithLabel_H > mapHeight) { // 左下
       this.map.panBy(X, Y - mapHeight + markerWithLabel_H);
-    }else if(X + markerWithLabel_W > mapWidth && Y < 0) { // 右上
+    } else if (X + markerWithLabel_W > mapWidth && Y < 0) { // 右上
       this.map.panBy(X - mapWidth + markerWithLabel_W, Y);
     }
   }
 
   focusMarker(mMarker, selected, id) {
-    if(!selected) {
+    if (!selected) {
       // 没有被选中, 变成蓝色大图标(BB_Icon)
       mMarker.marker.setIcon(this.BB_Icon);
     }
@@ -747,27 +797,27 @@ class InfoMap extends Component{
 
   resetMarker(id, force) {
 
-    if(this.markerID == id && this.hoverState && !force) {
+    if (this.markerID == id && this.hoverState && !force) {
       return;
     }
 
     const mMarker = this.markers.find((m) => m.id == id);
-    if(!mMarker) {
+    if (!mMarker) {
       return;
     }
 
     const { marker, label, selected } = mMarker;
-    if(!selected) {
+    if (!selected) {
       // 没有被选中, 恢复蓝色小图标(SB_Icon)
       marker.setIcon(this.SB_Icon);
     }
 
     // 被选中/ 无选中的通常处理
     marker.setZIndex(NORMAL_Z_INDEX);
-    if(!label.isOpen()) {
+    if (!label.isOpen()) {
       label.open(this.map, marker);
     }
-    if(this.markerID == id) {
+    if (this.markerID == id) {
       this.markerID = null;
     }
   }
@@ -777,14 +827,14 @@ class InfoMap extends Component{
    */
 
   reLoadJS(key) {
-    if(this.loadTime >= 3) {
+    if (this.loadTime >= 3) {
       alert('地图服务器错误');
       return;
     }
     this.loadTime++;
     let _this = this;
     utils.loadJS(key).then(_this.loadMap, () => {
-      setTimeout(()=>{
+      setTimeout(() => {
         window.loadPromise = null;
         _this.reLoadJS(key);
       },100);
