@@ -1,11 +1,11 @@
 import React, {Component} from 'react'
-import 'antd/dist/antd.css';
 import Select from 'antd/lib/select';
 import Icon from './Icon';
 import './suggestion.scss';
 import PubSub from 'pubsub-js';
-const request = require('superagent');
-let api = 'http://107.150.104.221/nd/gmap';
+import cloneDeep from 'lodash/cloneDeep';
+import postRequest from './ApiClient';
+import { getValue } from './utils';
 const Option = Select.Option;
 const suggestionErrorMsg = '无结果，请尝试搜索';
 const searchErrorMsg = '未找到该地址';
@@ -29,16 +29,7 @@ class MapSuggestion extends Component {
   }
 
   searchPlace(val) {
-    const actionQuery = {
-      type: 'autocomplete',
-      query: {
-        input:val,
-        language:'zh-CN'
-      }
-    };
-    return request.post(api)
-    .set('charset','utf-8')
-    .send(actionQuery);
+    return postRequest('autocomplete', "input=" + val);
   }
 
   onFocus() {
@@ -73,8 +64,8 @@ class MapSuggestion extends Component {
           dataSource: this.loadingOption
         });
       }
-      this.promise.then((result) => {
-        let {body} = result;
+      this.promise && this.promise.then((result) => {
+        let body = getValue(['body', 'data'], result);
         if(body && body.status && body.predictions.length > 0) {
           let data = body.predictions;
           let arr =  data.map((val, index) => {
@@ -146,29 +137,20 @@ class MapSuggestion extends Component {
   }
 
   textSearch(text) {
-    const actionQuery = {
-      type: 'textsearch',
-      query: {
-        query:text,
-        language:'zh-CN'
-      }
-    };
     let _this = this;
     this.abortPromise();
     this.clearDropMenu();
-    this.textSearchPromise = request
-    .post(api)
-    .set('charset','utf-8')
-    .send(actionQuery);
+    this.textSearchPromise = postRequest('textsearch', 'query=' + text);
 
-    this.textSearchPromise.then((result)=>{
-      let status = result.body.status;
+    this.textSearchPromise && this.textSearchPromise.then((response) => {
+      const result = getValue(['body', 'data'], response);
+      let status = result.status;
       if(status != 'OK') {
         _this.doSelect(text,'',true);
         _this.onTextSearchError();
         return;
       }
-      let data = result.body.results;
+      let data = result.results;
       if(!data || data.length == 0) {
         _this.doSelect(text,'',true);
         _this.onTextSearchError();
@@ -183,10 +165,10 @@ class MapSuggestion extends Component {
       let position = {lat,lng};
       _this.doSelect(address,position,false);
 
-    },(error)=>{
-      _this.doSelect(text,'',true);
-      _this.onTextSearchError();
-    }
+    },(error) => {
+        _this.doSelect(text,'',true);
+        _this.onTextSearchError();
+      }
     )
   }
 
@@ -239,39 +221,35 @@ class MapSuggestion extends Component {
   handleSelect(key,option) {
     const { fetter } = this.props;
     if(!option || !key) {
-       this.doSelect('','',true);
+       this.doSelect('', '', true);
        return;
     }
     let address = option.props.name;
-    // this.setState({
-    //   value:address
-    // });
-    this.doSelect(address,'',false);
+    this.doSelect(address, '', false);
     let place_id = key;
     const actionQuery = {
       type: 'details',
-      query: {
-        placeid:place_id,
+      params: {
+        placeid: place_id,
         language:'zh-CN'
       }
     };
     let _this = this;
     this.abortPromise();
     PubSub.publish('loading', {from:fetter, loading: true});
-    this.detailPromise = request.post(api)
-    .set('charset','utf-8')
-    .send(actionQuery);
+    this.detailPromise = postRequest('details', 'placeid=' + place_id);
 
-    this.detailPromise.then((result)=>{
-      if(result.body.status != 'OK') {
+    this.detailPromise && this.detailPromise.then((response) => {
+      const result = getValue(['body', 'data'], response);
+      if(result.status != 'OK') {
         this.doSelect(address,'',true);
         return;
       }
-      let data = result.body.result;
+      let data = result.result;
       let geo = data.geometry.location;
       let lat = geo.lat;
       let lng = geo.lng;
-      let position = {lat,lng};
+      let position = { lat,lng };
       _this.doSelect(address,position,false);
     },(error,data)=>{
       _this.doSelect(address,'',true);
@@ -303,7 +281,7 @@ class MapSuggestion extends Component {
           from: fetter
         });
       }else {
-        const dummy = _.cloneDeep(option);
+        const dummy = cloneDeep(option);
         dummy.from = fetter;
         PubSub.publish('onSelect', dummy);
       }
@@ -365,10 +343,10 @@ class MapSuggestion extends Component {
   }
 
   componentDidMount() {
-    let env = this.props.env;
-    if(env === 'test' || env === 'development') {
-      api = 'http://gmaptest.mioji.com/nd/gmap';
-    }
+    // let env = this.props.env;
+    // if(env === 'test' || env === 'development') {
+    //   api = 'http://gmaptest.mioji.com/nd/gmap';
+    // }
     if(!this.props.value && this.props.isNeedEmpty) {
       this.handleSearch('');
     }
@@ -434,4 +412,6 @@ class MapSuggestion extends Component {
     );
   }
 }
+
+
 export default MapSuggestion;
