@@ -3,6 +3,7 @@ import Select from 'antd/lib/select';
 import Icon from './Icon';
 import './suggestion.scss';
 import PubSub from 'pubsub-js';
+import cloneDeep from 'lodash/cloneDeep';
 import postRequest from './ApiClient';
 import { getValue } from './utils';
 const Option = Select.Option;
@@ -280,7 +281,7 @@ class MapSuggestion extends Component {
           from: fetter
         });
       }else {
-        const dummy = _.cloneDeep(option);
+        const dummy = cloneDeep(option);
         dummy.from = fetter;
         PubSub.publish('onSelect', dummy);
       }
