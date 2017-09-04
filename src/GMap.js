@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import { isEqual, assign } from 'lodash';
+import isEqual from 'lodash/isEqual';
+import assign from 'lodash/assign';
 import * as utils from './utils';
-import 'antd/dist/antd.css';
 import Select from 'antd/lib/select';
 import './index.scss';
 
@@ -17,7 +17,7 @@ class GMap extends Component{
     this.addInfoWindow = this.addInfoWindow.bind(this);
     this.map = null;
     this.lines = [];
-    this.markers = [];    
+    this.markers = [];
     this.loadTime = 0;
     this.state = {}
 
@@ -46,7 +46,8 @@ class GMap extends Component{
         clickableIcons: false,
         draggingCursor: 'move',
         draggableCursor: 'default',
-        disableDoubleClickZoom: false
+        disableDoubleClickZoom: false,
+        fullscreenControl: false,
       }
     }
   }

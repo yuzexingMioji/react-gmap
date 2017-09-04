@@ -1,6 +1,6 @@
 import React, {Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import {InfoMap } from './src';
+import { InfoMap, MJMap, MapSuggestion } from './src';
 
 class App extends Component {
 
@@ -164,13 +164,15 @@ class App extends Component {
     return (
       
       <div style={{width: '800px', height: '800px'}} >
-      <div onClick={this.addNewMarker.bind(this)} >
+      <MJMap />
+      <MapSuggestion allowSearch />
+     {/* <div onClick={this.addNewMarker.bind(this)} >
         列表 +
       </div>
       <div onClick={this.removeNewMarker.bind(this)}>
         列表 -
       </div>
-        <InfoMap
+        <MJMap
           whole={data}
           selected={[]}
           // infinite={true}
@@ -178,7 +180,7 @@ class App extends Component {
           ref={(ref) => this.map = ref}
           // onClick={this.onClick.bind(this)}
           // onSelect={this.onSelect.bind(this)}   
-        />
+        />*/}
       </div>
     )
   }
