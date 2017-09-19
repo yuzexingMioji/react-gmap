@@ -209,7 +209,7 @@ class InfoMap extends Component{
     nSelected.map((s) => {
       path.push(s.position);
     });
-    order != nOrder && this.connectGroup(!nOrder, nSelected);
+    this.connectGroup(!nOrder, nSelected);
 
     setTimeout(() => {
       if(this.lineOnMap) {
@@ -673,11 +673,20 @@ class InfoMap extends Component{
     }
   }
 
+  /**
+   * 当时的想法: 不展示连线时，团伙展示，展示连线时，团伙不展，保证了团伙一直连线
+   * @param {*} boolean 是否要展示
+   * @param {*} selected 已选点
+   */
   connectGroup(boolean, selected) {
+    this.groupLines.map((line) => {
+      line.setMap(null);
+    });
+    this.groupLines.length = 0;
     if (boolean) {
       let groupID = 0;
-      let group = selected.filter((s) => s.groupID == groupID);
-      while (group.length != 0) {
+      let group = selected.filter((s) => s.groupID === groupID);
+      while (group.length !== 0) {
         const path = [];
         group.map((marker) => {
           path.push(marker.position);
@@ -687,14 +696,14 @@ class InfoMap extends Component{
         groupLine.setMap(this.map);
         this.groupLines.push(groupLine);
         groupID++;
-        group = selected.filter((s) => s.groupID == groupID);
+        group = selected.filter((s) => s.groupID === groupID);
       }
-    } else {
+    } /* else {
       this.groupLines.map((line) => {
         line.setMap(null);
       });
       this.groupLines.length = 0;
-    }
+    } */
   }
 
   openInfoBubble(content, marker, data) {
