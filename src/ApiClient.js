@@ -2,10 +2,12 @@ const request = require('superagent');    //原地址
 const ADDRESS = '/common/global';
 if(!window.apiConfig) {
 	window.apiConfig = {
-		localhost: 'http://10.10.149.130'
+		localhost: {
+			php: 'http://10.10.149.130'
+		}
 	}
 }
-const api = (window && window.apiConfig && window.apiConfig[window.location.hostname].php || window.apiConfig.localhost.php) + ADDRESS;
+const api = (window.apiConfig && window.apiConfig[window.location.hostname] && window.apiConfig[window.location.hostname].php || window.apiConfig.localhost.php) + ADDRESS;
 
 export default function postRequest(type, queryString) {
 
