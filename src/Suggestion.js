@@ -49,7 +49,7 @@ class Suggestion extends Component {
         });
       }
       this.promise.then((result) => {
-        let {body} = result;
+        let { data: body } = result;
         if(body && body.status && body.predictions.length > 0) {
           let data = body.predictions;
           let arr =  data.map((val, index) => {
@@ -78,7 +78,6 @@ class Suggestion extends Component {
   }
 
   showTextSearchError() {
-    console.log('this');
     this.setState({
       dataSource: [<Option disabled key = 'noData'>未找到该地址</Option>]
     })
