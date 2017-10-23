@@ -4,7 +4,7 @@ import isEqual from 'lodash/isEqual';
 import assign from 'lodash/assign';
 import * as utils from './utils';
 import './index.scss';
-import InfoBubble from './Infobubble';
+import InfoBubble from './infobubble';
 
 const DELAY_TIME = 300;
 const IMG_BIG_BLUE = 'http://ubsrc.cdn.mioji.com/gmap/img/icon_blue_focus.png';
