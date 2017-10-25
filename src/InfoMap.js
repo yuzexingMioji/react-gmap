@@ -388,10 +388,9 @@ class InfoMap extends Component{
       icon = ICON_ADD;
     }
 
-    const style = this.styleDist(type);
+    const style = this.styleDist(type, third);
 
     const className = custom == 3 && style.showPrivate  ? 'gmap-info-map-first-title-siyou' : 'noIcon';
-
 
     content.innerHTML = 
     "<img class='gmap-info-map-img' src="+ imageUrl +" />"
@@ -424,7 +423,7 @@ class InfoMap extends Component{
    * 1024: 省/州
    */
 
-  styleDist(type) {
+  styleDist(type, third) {
     const style = {
       extraCool: '',
       extraCooler: '',
@@ -461,7 +460,12 @@ class InfoMap extends Component{
       case 131072:
       case 262144:
       case 524288:
-        style.extraCoolest = 'play'
+      // 万般无奈
+        if (third === '暂无报价') {
+          style.extraCoolest = 'play gray-tag';
+        } else {
+          style.extraCoolest = 'play';
+        }
         style.showPrivate = true;
         break;
     }
